@@ -3,7 +3,7 @@ import pickle
 
 import re
 import pandas as pd
-import numpy as np
+# import numpy as np
 from sqlalchemy import create_engine
 
 import nltk
@@ -21,6 +21,7 @@ from sklearn.metrics import classification_report
 # Global pattern of http for regex
 url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
+
 # Check if nltk package was dowloaded
 def package_checker(package_name):
     """
@@ -31,7 +32,7 @@ def package_checker(package_name):
         Name of package will be checked
 
     return: bool
-        Return True if package has been dowloaded, 
+        Return True if package has been dowloaded,
         otherwise return False
     """
     try:
@@ -39,6 +40,7 @@ def package_checker(package_name):
         return True
     except:
         return False
+
 
 # Global check NLTK package
 package_list = ['punkt', 'wordnet', 'averaged_perceptron_tagger', 'omw-1.4']
@@ -48,6 +50,21 @@ for package in package_list:
 
 
 def load_data(database_filepath):
+    """
+    Load data contains in database.
+
+    Parameter:
+    database_filepath: str
+        Filepath of database
+
+    Return:
+    X: pd.DataFrame
+        DataFrame contain training data input
+    Y: pd.DataFrame
+        DataFrame contain label to predict
+    category_cols: list
+        List of columns name of training data
+    """
     engine = create_engine('sqlite:///' + database_filepath)
     table = "disaster_data"
     # We don't need values 2 from column related.
@@ -59,6 +76,18 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Helper function for preprocess text data.
+    This function perform NLP preprocessing to clean text data.
+
+    Parameter:
+    text: str
+        Input text will be cleaned
+
+    Return:
+    text: str
+        String has been cleaned
+    """
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
@@ -74,7 +103,18 @@ def tokenize(text):
     return clean_tokens
 
 
-def build_model(use_gridsearch=True):
+def build_model(use_gridsearch=False):
+    """
+    Build model pipeline with sklearn.pipeline.Pipeline
+
+    parameter:
+    use_gridsearch: bool, default: False
+        if True, pipeline will perform GridSearchCV to find best parameters
+
+    Return:
+    pipeline: sklearn.pipeline.Pipeline
+        Pipeline of model
+    """
     pipeline = Pipeline([
         ('features', Pipeline([
                 ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -96,15 +136,44 @@ def build_model(use_gridsearch=True):
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Compute and return model performance report.
+    Function will print report of model by using
+    sklearn.metrics.classification_report
+
+    Parameters:
+    model: sklearn.BaseEstimator
+        Model of Scikit-learn. it must has predict function
+    X_test: array-like
+        Input test data
+    Y_test: array-like
+        True label of input test
+    category_names: list
+        List of columns name
+
+    Return:
+    None
+    """
     y_pred = model.predict(X_test)
     print(classification_report(Y_test, y_pred, target_names=category_names))
 
 
 def save_model(model, model_filepath):
+    """
+    Save and write model to a .pkl file
+
+    Parameters:
+    model: sklearn.BaseEstimator
+        Model will be saved
+    model_filepath: str
+        string of filepath to save the model
+
+    Return:
+        None
+    """
     with open(model_filepath, "wb") as f:
         pickle.dump(model, f)
         f.close()
-    
 
 
 def main():
@@ -115,13 +184,13 @@ def main():
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, random_state=10)
         print(f"Training shape: {X_train.shape}")
         print(f"Test shape: {X_test.shape}")
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
