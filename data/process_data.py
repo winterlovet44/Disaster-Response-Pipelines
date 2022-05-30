@@ -39,11 +39,6 @@ def transform_categories(categories):
     categories_df.columns = category_colnames
     for col in category_colnames:
         categories_df[col] = categories_df[col].str[-1]
-        # make sure that only 0 and 1 in the column
-    #     if categories_df[col].nunique() > 2:
-    #         idx_drop = categories_df[categories_df[col].isin(["0","1"]) == False].index
-    #         categories_df = categories_df.drop(index=idx_drop)
-    # categories_df = categories_df.reset_index(drop=True)
     categories_df = categories_df.astype(int)
     return categories_df
 
@@ -63,7 +58,10 @@ def clean_data(df):
     categories_df = transform_categories(df.categories)
     df = df.drop(columns=['categories'])
     df = pd.concat([df, categories_df], axis=1)
-#     df = df.dropna(subset=categories_df.columns)
+    # make sure that only 0 and 1 in the train input
+    for col in categories_df.columns:
+        if df[col].nunique() > 2:
+            df = df[df[col].isin([0, 1])]
     print("    Drop duplicated records")
     df = df.drop_duplicates()
     return df.reset_index(drop=True)
