@@ -78,11 +78,14 @@ python train_classifier.py ../data/DisasterResponse.db classifier.pkl
 ```
 
 3. Run web app
+
 Run the code below to start the web app at localhost
+
 ```bash
 cd app
 python run.py
 ```
+
 And go to [http://localhost:3000](http://localhost:3000) to see the web app
 
 
