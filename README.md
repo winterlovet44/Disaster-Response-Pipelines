@@ -11,6 +11,7 @@
 
 
 ## Dependencies <a name="dependencies"></a>
+
 To run code in this project, your enviroments need:
 1. [Pandas](https://pandas.pydata.org/)
 2. [Numpy](https://numpy.org/)
@@ -86,7 +87,7 @@ cd app
 python run.py
 ```
 
-And go to [http://localhost:3000](http://localhost:3000) to see the web app
+And go to [http://localhost:3000](http://localhost:3000/) to see the web app
 
 
 
